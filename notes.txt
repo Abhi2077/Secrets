@@ -1,0 +1,39 @@
+const md5 = require("md5");
+const bcrypt = require("bcrypt");
+const saltRounds = 10;//no. times hash function repeat itself
+//const encrypt = require("mongoose-encryption");
+
+//with out encrypted fields it will encrypt the whole database;
+//here secret: is kind of a pass key
+//userSchema.plugin(encrypt, {secret: process.env.SECRET, encryptedFields: ['userPassword']});
+
+//salting is technique in which we add some random string with password and then hash it
+//it is good for preventing dictionary attacks
+
+/register route POST  bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
+    if(err)
+    console.log(err);
+    const newUser = new User({
+      userEmail: req.body.username,
+      userPassword: hash
+    });
+    newUser.save();
+    res.render("secrets");
+  });
+
+
+/login route
+User.findOne({userEmail: req.body.username}, function(err, foundUser){
+  if(err)
+  res.send(err);
+  if(foundUser){
+    bcrypt.compare(req.body.password, foundUser.userPassword, function(err, result) {
+      if(err)
+      console.log(err);
+      if(result)
+      res.render("secrets");
+      else
+      res.send("No user found with the specified username and password!!");
+    });
+  }
+});
